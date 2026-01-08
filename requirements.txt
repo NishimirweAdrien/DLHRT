@@ -1,0 +1,6 @@
+# Python dependencies 
+tensorflow==2.15.0  # or pytorch depending on your choice 
+numpy==1.26.4 
+opencv-python==4.10.0 
+mysql-connector-python==8.4.0 
+
