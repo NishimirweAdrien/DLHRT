@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DLTHRT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="file"] {
+            width: 100%;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        button.loading .spinner {
+            display: inline-block;
+        }
+        button.loading span {
+            visibility: hidden;
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Bank Withdraw Slip</h1>
+        <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="POST">
+            <div class="form-group">
+                <label for="image">Upload Slip Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            <button type="submit" class="upload-button">
+                <span>Upload and Process</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+        <div id="result" class="result">
+            {% if result %}
+                <h2>Processing Result:</h2>
+                <pre>{{ result }}</pre>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const button = document.querySelector('.upload-button');
+            button.classList.add('loading'); // Show spinner
+
+            const formData = new FormData(this);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = `
+                    <h2>Processing Result:</h2>
+                    <pre>${data.result}</pre>
+                `;
+                button.classList.remove('loading'); // Hide spinner when result is received
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = `
+                    <h2>Error:</h2>
+                    <pre>${error.message}</pre>
+                `;
+                button.classList.remove('loading'); // Hide spinner on error
+            });
+        });
+    </script>
+</body>
+</html>
