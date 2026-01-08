@@ -22,10 +22,10 @@ def setup_database():
             database="banking_system"
         )
         if conn.is_connected():
-            print("✅ Successfully connected to MySQL database")
+            print("Successfully connected to MySQL database")
         return conn
     except mysql.connector.Error as e:
-        print(f"❌ Database connection error: {e}")
+        print(f"Database connection error: {e}")
         raise
 
 def get_client_names(conn, account_number):
@@ -36,13 +36,13 @@ def get_client_names(conn, account_number):
         cursor.execute(query, (account_number,))
         result = cursor.fetchone()
         if result:
-            print(f"✅ Found client for account number {account_number}")
+            print(f"Found client for account number {account_number}")
             return result[0], result[1]  # Return first_name, last_name
         else:
-            print(f"❌ No client found for account number {account_number}")
+            print(f"  No client found for account number {account_number}")
             return None, None
     except mysql.connector.Error as e:
-        print(f"❌ Error querying clients table: {e}")
+        print(f"  Error querying clients table: {e}")
         return None, None
     finally:
         if cursor:
@@ -59,9 +59,9 @@ def save_to_database(conn, first_name, surname, account_number, amount):
         values = (first_name, surname, account_number, amount)
         cursor.execute(query, values)
         conn.commit()
-        print(f"💾 Saved to DB: {first_name} {surname} | Acc: {account_number} | Amt: {amount} FRW")
+        print(f"  Saved to DB: {first_name} {surname} | Acc: {account_number} | Amt: {amount} FRW")
     except mysql.connector.Error as e:
-        print(f"❌ Database save error: {e}")
+        print(f"  Database save error: {e}")
         conn.rollback()
         raise
     finally:
@@ -95,7 +95,7 @@ def process_slip(image_path):
 
         # Account Number Detection
         if not found_account and 'account' in word_lower:
-            print(f"✅ Found 'account' at index {i}")
+            print(f"  Found 'account' at index {i}")
             for j in range(i + 1, len(data['text'])):
                 if re.search(r'\d', data['text'][j]):
                     x = data['left'][j]
@@ -138,7 +138,7 @@ def process_slip(image_path):
 
         # Amount Detection
         if not found_amount and 'amount' in word_lower:
-            print(f"✅ Found 'amount' at index {i}")
+            print(f"  Found 'amount' at index {i}")
             for j in range(i + 1, len(data['text'])):
                 if re.search(r'\d', data['text'][j]):
                     x = data['left'][j]
@@ -209,39 +209,40 @@ def process_slip(image_path):
             if db_first_name and db_last_name:
                 first_name, last_name = db_first_name, db_last_name
             else:
-                print("❌ Using extracted names as fallback due to missing client record.")
+                print("  Using extracted names as fallback due to missing client record.")
         
         if all([first_name, last_name, account_number, amount]):
             save_to_database(conn, first_name, last_name, account_number, amount)
         else:
-            print("❌ Cannot save to database: One or more attributes are missing.")
+            print("  Cannot save to database: One or more attributes are missing.")
     except Exception as e:
-        print(f"❌ Error during database operation: {e}")
+        print(f"  Error during database operation: {e}")
     finally:
         if 'conn' in locals() and conn.is_connected():
             conn.close()
-            print("✅ Database connection closed.")
+            print("  Database connection closed.")
 
     # --- Format Output ---
     output_lines.append("\n==== FINAL RESULT ====")
     if found_account:
-        output_lines.append(f"✅ ACCOUNT NUMBER: {account_number}")
+        output_lines.append(f"  ACCOUNT NUMBER: {account_number}")
     else:
-        output_lines.append("❌ Account number not found.")
+        output_lines.append("  Account number not found.")
 
     if found_amount:
-        output_lines.append(f"✅ AMOUNT: {amount} FRW")
+        output_lines.append(f"  AMOUNT: {amount} FRW")
     else:
-        output_lines.append("❌ Amount not found.")
+        output_lines.append("  Amount not found.")
 
     if first_name:
-        output_lines.append(f"✅ FIRST NAME: {first_name}")
+        output_lines.append(f"  FIRST NAME: {first_name}")
     else:
-        output_lines.append("❌ FIRST NAME not found.")
+        output_lines.append("  FIRST NAME not found.")
 
     if last_name:
-        output_lines.append(f"✅ LAST NAME: {last_name}")
+        output_lines.append(f"  LAST NAME: {last_name}")
     else:
-        output_lines.append("❌ LAST NAME not found.")
+        output_lines.append("  LAST NAME not found.")
+
 
     return "\n".join(output_lines)
